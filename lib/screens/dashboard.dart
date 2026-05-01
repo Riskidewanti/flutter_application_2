@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'task_page.dart';
+import 'task_page.dart'; // import halaman tujuan (TaskPage)
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
@@ -7,6 +7,7 @@ class Dashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    // DATA SUBJECT (isi kartu yang bakal ditampilkan)
     final List<Map<String, dynamic>> subjects = [
       {
         "name": "Matematika",
@@ -31,12 +32,12 @@ class Dashboard extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F4FF),
-      body: SafeArea(
+      backgroundColor: const Color(0xFFF0F4FF), // warna background utama
+      body: SafeArea( // biar ga ketabrak notch / status bar
         child: Column(
           children: [
 
-            // HEADER DAN BANNER
+            // ===== HEADER =====
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
@@ -45,11 +46,11 @@ class Dashboard extends StatelessWidget {
 
                   const SizedBox(height: 15),
 
-                  // HEADER
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
 
+                      // TEXT WELCOME
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -73,32 +74,17 @@ class Dashboard extends StatelessWidget {
                         ],
                       ),
 
-                      Container(
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 8,
-                              offset: Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Icon(Icons.search),
-                      ),
                     ],
                   ),
 
                   SizedBox(height: 25),
 
-                  // BANNER
+                  // ===== CARD PROMO =====
                   Container(
                     width: double.infinity,
                     height: 150,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      gradient: LinearGradient( // background gradasi
                         colors: [
                           Color(0xFF4A90E2),
                           Color(0xFF6A5AE0),
@@ -121,9 +107,7 @@ class Dashboard extends StatelessWidget {
                           color: Colors.white,
                           size: 28,
                         ),
-
                         SizedBox(height: 8),
-
                         Text(
                           "Upgrade Your Skills 🚀",
                           style: TextStyle(
@@ -138,7 +122,7 @@ class Dashboard extends StatelessWidget {
 
                   SizedBox(height: 25),
 
-                  // TITLE
+                  // ===== TITLE + SEE ALL =====
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -151,53 +135,19 @@ class Dashboard extends StatelessWidget {
                         ),
                       ),
 
+                      // BUTTON KE HALAMAN TASK
                       Material(
                         color: Colors.transparent,
                         child: InkWell(
                           borderRadius: BorderRadius.circular(8),
-
                           onTap: () {
-
                             Navigator.push(
                               context,
-                              PageRouteBuilder(
-                                transitionDuration:
-                                    Duration(milliseconds: 500),
-
-                                pageBuilder: (
-                                  context,
-                                  animation,
-                                  secondaryAnimation,
-                                ) =>
-                                    TaskPage(),
-
-                                transitionsBuilder: (
-                                  context,
-                                  animation,
-                                  secondaryAnimation,
-                                  child,
-                                ) {
-
-                                  final slideAnimation = Tween(
-                                    begin: Offset(1, 0),
-                                    end: Offset.zero,
-                                  ).animate(
-                                    CurvedAnimation(
-                                      parent: animation,
-                                      curve: Curves.easeInOut,
-                                    ),
-                                  );
-
-                                  return SlideTransition(
-                                    position: slideAnimation,
-                                    child: child,
-                                  );
-                                },
+                              MaterialPageRoute(
+                                builder: (context) => const TaskPage(),
                               ),
                             );
-
                           },
-
                           child: Padding(
                             padding: EdgeInsets.symmetric(
                               horizontal: 8,
@@ -213,7 +163,6 @@ class Dashboard extends StatelessWidget {
                           ),
                         ),
                       ),
-
                     ],
                   ),
 
@@ -222,73 +171,83 @@ class Dashboard extends StatelessWidget {
               ),
             ),
 
-            // GRID SUBJECT
+            /// ===== GRID SUBJECT =====
             Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: GridView.builder(
-                  itemCount: subjects.length,
-
+                  itemCount: subjects.length, // jumlah item
                   gridDelegate:
                       SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
+                    crossAxisCount: 2, // 2 kolom
                     crossAxisSpacing: 15,
                     mainAxisSpacing: 15,
                   ),
-
                   itemBuilder: (context, index) {
 
-                    final subject = subjects[index];
+                    final subject = subjects[index]; // ambil data per item
 
-                    return Container(
-                      padding: EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 10,
-                            offset: Offset(0, 5),
-                          ),
-                        ],
-                      ),
-
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-
-                          Container(
-                            padding: EdgeInsets.all(14),
-                            decoration: BoxDecoration(
-                              color: subject["color"].withOpacity(0.15),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Image.asset(
-                              subject["image"],
-                              height: 35,
+                    return GestureDetector(
+                      // KETIKA DI KLIK → PINDAH KE TASK PAGE
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TaskPage(
+                              selectedSubject: subject["name"], // kirim data subject
                             ),
                           ),
-
-                          SizedBox(height: 15),
-
-                          Text(
-                            subject["name"],
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
+                        );
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 10,
+                              offset: Offset(0, 5),
                             ),
-                          ),
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
 
-                        ],
+                            // ICON / GAMBAR SUBJECT
+                            Container(
+                              padding: EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: subject["color"].withOpacity(0.15),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Image.asset(
+                                subject["image"],
+                                height: 35,
+                              ),
+                            ),
+
+                            SizedBox(height: 15),
+
+                            // NAMA SUBJECT
+                            Text(
+                              subject["name"],
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },
                 ),
               ),
             ),
-
           ],
         ),
       ),

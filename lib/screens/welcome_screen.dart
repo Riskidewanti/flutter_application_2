@@ -10,20 +10,22 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> { 
 
-  bool isPressed = false; 
+  bool isPressed = false; // buat efek tombol ditekan
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF8FAFF),
+      backgroundColor: Color(0xFFF8FAFF), // warna background utama
+
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 25),
+          padding: EdgeInsets.symmetric(horizontal: 25), // padding kiri kanan
           child: Column(
             children: [
 
               SizedBox(height: 40),
 
+              // NAMA APP (atas)
               Text(
                 "Task Mate",
                 style: TextStyle(
@@ -34,9 +36,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
               ),
 
-              Spacer(),
+              Spacer(), // dorong konten ke tengah
 
-              // GAMBAR
+              // GAMBAR ILUSTRASI
               Container(
                 decoration: BoxDecoration(
                   boxShadow: [
@@ -48,14 +50,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   ],
                 ),
                 child: Image.asset(
-                  'images/list.png',
+                  'images/list.png', // gambar dari assets
                   height: 220,
                 ),
               ),
 
               SizedBox(height: 40),
 
-              // JUDUL
+              // JUDUL BESAR
               Text(
                 "Organize Your Tasks",
                 textAlign: TextAlign.center,
@@ -68,7 +70,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
               SizedBox(height: 10),
 
-              // SUBTITLE
+              // SUBTITLE / DESKRIPSI
               Text(
                 "A simple way to manage your tasks\nand stay productive",
                 textAlign: TextAlign.center,
@@ -81,7 +83,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
               SizedBox(height: 20),
 
-              // GARIS
+              // GARIS DEKORASI
               Container(
                 width: 60,
                 height: 4,
@@ -96,11 +98,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
               ),
 
-              Spacer(),
+              Spacer(), // dorong tombol ke bawah
 
-              // BUTTON DENGAN EFEK PRESS
+              // TOMBOL GET STARTED + ANIMASI
               AnimatedScale(
-                scale: isPressed ? 0.95 : 1,
+                scale: isPressed ? 0.95 : 1, // efek mengecil saat ditekan
                 duration: Duration(milliseconds: 150),
 
                 child: SizedBox(
@@ -118,13 +120,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             Color(0xFF00C6FF),
                           ],
                         ),
-                        borderRadius:
-                            BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(30),
 
                         boxShadow: [
                           BoxShadow(
-                            color: Color(0xFF3A86FF)
-                                .withOpacity(0.4),
+                            color: Color(0xFF3A86FF).withOpacity(0.4),
                             blurRadius: 20,
                             offset: Offset(0, 8),
                           ),
@@ -132,39 +132,39 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       ),
 
                       child: InkWell(
-                        borderRadius:
-                            BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(30),
 
                         splashColor: Colors.white24,
 
+                        // saat ditekan (down)
                         onTapDown: (_) {
                           setState(() {
                             isPressed = true;
                           });
                         },
 
+                        // saat dilepas
                         onTapUp: (_) {
                           setState(() {
                             isPressed = false;
                           });
                         },
 
+                        // kalau batal tekan
                         onTapCancel: () {
                           setState(() {
                             isPressed = false;
                           });
                         },
 
+                        // pindah ke dashboard
                         onTap: () {
-
-                          Navigator.push(
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  Dashboard(),
+                              builder: (context) => const Dashboard(),
                             ),
                           );
-
                         },
 
                         child: Padding(
@@ -173,16 +173,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           ),
 
                           child: Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
 
+                              // teks tombol
                               Text(
                                 "GET STARTED",
                                 style: TextStyle(
                                   fontSize: 16,
-                                  fontWeight:
-                                      FontWeight.bold,
+                                  fontWeight: FontWeight.bold,
                                   letterSpacing: 1,
                                   color: Colors.white,
                                 ),
@@ -190,6 +189,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
                               SizedBox(width: 10),
 
+                              // icon panah
                               Icon(
                                 Icons.arrow_forward,
                                 size: 18,

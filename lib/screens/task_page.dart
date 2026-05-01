@@ -1,39 +1,144 @@
 import 'package:flutter/material.dart';
-import 'dashboard.dart';
+import 'package:flutter_application_2/screens/task_detail.dart';
+import 'package:flutter_application_2/screens/add_subject.dart';
 
-class TaskPage extends StatelessWidget {
-  const TaskPage({super.key});
+class TaskPage extends StatefulWidget {
+  final String? selectedSubject; // subject dari dashboard (kalau ada)
+
+  const TaskPage({super.key, this.selectedSubject});
+
+  @override
+  State<TaskPage> createState() => _TaskPageState();
+}
+
+class _TaskPageState extends State<TaskPage> {
+
+  String currentFilter = "all"; // buat filter (semua / ada task)
+
+  // data utama subject
+  List<Map<String, dynamic>> subjects = [
+    {
+      "name": "Matematika",
+      "icon": Icons.calculate,
+      "color": Colors.orange,
+      "tasks": [] // list tugas per subject
+    },
+    {
+      "name": "Fisika",
+      "icon": Icons.science,
+      "color": Colors.purple,
+      "tasks": []
+    },
+    {
+      "name": "Pemrograman", 
+      "icon": Icons.code,
+      "color": Colors.blue,
+      "tasks": []
+    },
+    {
+      "name": "Jaringan", 
+      "icon": Icons.network_check,
+      "color": Colors.green,
+      "tasks": []
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    // kalau masuk dari dashboard → langsung buka subject
+    if (widget.selectedSubject != null) {
+      final subject = subjects.firstWhere(
+        (s) => s["name"] == widget.selectedSubject,
+        orElse: () => {},
+      );
+
+      if (subject.isNotEmpty) {
+        Future.microtask(() {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TaskDetailPage(subject: subject),
+            ),
+          ).then((value) {
+            if (value == true) {
+              setState(() {}); // refresh kalau ada perubahan
+            }
+          });
+        });
+      }
+    }
+  }
+
+  // fungsi hapus subject
+  void deleteSubject(int index, List list) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Hapus Subject"),
+        content: Text("Yakin mau hapus ${list[index]["name"]}?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() {
+                subjects.remove(list[index]); // hapus dari list utama
+              });
+            },
+            child: const Text(
+              "Hapus",
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
 
-    final List<Map<String, dynamic>> tasks = [
-      {"name": "Matematika", "icon": Icons.calculate, "color": Colors.orange},
-      {"name": "Fisika", "icon": Icons.science, "color": Colors.purple},
-      {"name": "Pemrograman", "icon": Icons.code, "color": Colors.cyan},
-      {"name": "Jaringan", "icon": Icons.wifi, "color": Colors.green},
-      {"name": "Basis Data", "icon": Icons.storage, "color": Colors.indigo},
-      {"name": "Sistem Operasi", "icon": Icons.computer, "color": Colors.teal},
-      {"name": "AI", "icon": Icons.smart_toy, "color": Colors.redAccent},
-      {"name": "Keamanan", "icon": Icons.security, "color": Colors.amber},
-    ];
+    // filter data sebelum ditampilkan
+    final filteredSubjects = currentFilter == "hasTask"
+        ? subjects.where((s) => s["tasks"].isNotEmpty).toList()
+        : subjects;
 
     return Scaffold(
+
+      // tombol tambah subject
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.white,
-        child: Icon(Icons.add, color: Colors.blue),
-        onPressed: () {},
+        child: const Icon(Icons.add, color: Colors.blue),
+        onPressed: () async {
+
+          final newSubject = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddSubjectPage(),
+            ),
+          );
+
+          // kalau ada subject baru → masuk ke list
+          if (newSubject != null && newSubject is Map<String, dynamic>) {
+            setState(() {
+              subjects.add(newSubject);
+            });
+          }
+        },
       ),
 
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
               Color(0xFF5B8DEF),
               Color(0xFF4A6FD6),
             ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
           ),
         ),
 
@@ -41,245 +146,194 @@ class TaskPage extends StatelessWidget {
           child: Column(
             children: [
 
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
 
               /// HEADER
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
 
-                    /// BACK BUTTON 
-                    Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(30),
-
-                        onTap: () {
-
-                          Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              transitionDuration:
-                                  Duration(milliseconds: 500),
-
-                              pageBuilder: (
-                                context,
-                                animation,
-                                secondaryAnimation,
-                              ) =>
-                                  Dashboard(),
-
-                              transitionsBuilder: (
-                                context,
-                                animation,
-                                secondaryAnimation,
-                                child,
-                              ) {
-
-                                final slideAnimation = Tween(
-                                  begin: Offset(-1, 0),
-                                  end: Offset.zero,
-                                ).animate(
-                                  CurvedAnimation(
-                                    parent: animation,
-                                    curve: Curves.easeInOut,
-                                  ),
-                                );
-
-                                return SlideTransition(
-                                  position: slideAnimation,
-                                  child: child,
-                                );
-                              },
-                            ),
-                          );
-
-                        },
-
-                        child: Container(
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.20),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.arrow_back_ios_new,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
+                    // tombol back
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(
+                        Icons.arrow_back_ios_new,
+                        color: Colors.white,
                       ),
                     ),
 
-                    /// TITLE
+                    // judul
                     Column(
                       children: [
-
-                        Text(
+                        const Text(
                           "My Tasks",
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 24,
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-
-                        SizedBox(height: 8),
-
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.20),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            "8 Subjects Active",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
+                        Text(
+                          "${subjects.length} Subjects", // jumlah subject
+                          style: const TextStyle(
+                            color: Colors.white70,
                           ),
                         ),
                       ],
                     ),
 
-                    /// MENU BUTTON
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.20),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.grid_view_rounded,
-                        color: Colors.white,
-                      ),
+                    /// MENU (sorting + filter)
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.grid_view, color: Colors.white),
+                      onSelected: (value) {
+                        setState(() {
+                          // sorting A-Z
+                          if (value == "az") {
+                            subjects.sort((a, b) => a["name"].compareTo(b["name"]));
+                          } 
+                          // task terbanyak
+                          else if (value == "task_desc") {
+                            subjects.sort((a, b) =>
+                                b["tasks"].length.compareTo(a["tasks"].length));
+                          } 
+                          // task tersedikit
+                          else if (value == "task_asc") {
+                            subjects.sort((a, b) =>
+                                a["tasks"].length.compareTo(b["tasks"].length));
+                          } 
+                          // filter: hanya yang punya task
+                          else if (value == "filter_has_task") {
+                            currentFilter = "hasTask";
+                          } 
+                          // tampilkan semua
+                          else if (value == "filter_all") {
+                            currentFilter = "all";
+                          }
+                        });
+                      },
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: "az",
+                          child: Text("Urut A-Z"),
+                        ),
+                        const PopupMenuItem(
+                          value: "task_desc",
+                          child: Text("Task Terbanyak"),
+                        ),
+                        const PopupMenuItem(
+                          value: "task_asc",
+                          child: Text("Task Tersedikit"),
+                        ),
+                        const PopupMenuDivider(),
+                        const PopupMenuItem(
+                          value: "filter_has_task",
+                          child: Text("Ada Task Saja"),
+                        ),
+                        const PopupMenuItem(
+                          value: "filter_all",
+                          child: Text("Semua Subject"),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
 
-              SizedBox(height: 25),
+              const SizedBox(height: 20),
 
-              /// SEARCH
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 15),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.20),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: TextField(
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                    decoration: InputDecoration(
-                      icon: Icon(
-                        Icons.search,
-                        color: Colors.white,
-                      ),
-                      hintText: "Search subject...",
-                      hintStyle: TextStyle(
-                        color: Colors.white70,
-                      ),
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 25),
-
-              /// GRID
+              /// GRID SUBJECT
               Expanded(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.all(16),
                   child: GridView.builder(
-                    itemCount: tasks.length,
-
+                    itemCount: filteredSubjects.length,
                     gridDelegate:
-                        SliverGridDelegateWithFixedCrossAxisCount(
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 20,
                       mainAxisSpacing: 20,
-                      childAspectRatio: 1,
                     ),
-
                     itemBuilder: (context, index) {
 
-                      final task = tasks[index];
+                      final subject = filteredSubjects[index];
 
-                      return Container(
-                        padding: EdgeInsets.all(16),
-
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(25),
-
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 12,
-                              offset: Offset(0, 6),
-                            ),
-                          ],
-                        ),
-
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-
-                            /// ICON
-                            Container(
-                              padding: EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: task["color"].withOpacity(0.3),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                task["icon"],
-                                size: 30,
-                                color: Colors.white,
+                      return GestureDetector(
+                        // klik → masuk detail
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TaskDetailPage(
+                                subject: subject,
                               ),
                             ),
+                          ).then((value) {
+                            if (value == true) {
+                              setState(() {}); // refresh kalau ada perubahan
+                            }
+                          });
+                        },
 
-                            SizedBox(height: 12),
+                        // tahan → delete
+                        onLongPress: () => deleteSubject(index, filteredSubjects),
 
-                            /// TITLE
-                            Text(
-                              task["name"],
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+
+                              // icon subject
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: subject["color"].withOpacity(0.3),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  subject["icon"],
+                                  size: 30,
+                                  color: Colors.white,
+                                ),
                               ),
-                              textAlign: TextAlign.center,
-                            ),
 
-                            SizedBox(height: 6),
+                              const SizedBox(height: 12),
 
-                            /// SUBTITLE
-                            Text(
-                              "4 Tasks",
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
+                              // nama subject
+                              Text(
+                                subject["name"],
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
                               ),
-                            ),
-                          ],
+
+                              const SizedBox(height: 6),
+
+                              // jumlah task
+                              Text(
+                                "${subject["tasks"].length} Tasks",
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },
                   ),
                 ),
               ),
-
             ],
           ),
         ),
