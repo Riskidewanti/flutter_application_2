@@ -66,7 +66,6 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        // BACKGROUND GRADIENT (biar konsisten sama halaman lain)
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFF5B8DEF), Color(0xFF4A6FD6)],

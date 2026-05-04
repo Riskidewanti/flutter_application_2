@@ -42,7 +42,6 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
       ),
 
       body: Container(
-        // UI ASLI
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFF5B8DEF), Color(0xFF4A6FD6)],

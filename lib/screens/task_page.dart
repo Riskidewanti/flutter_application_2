@@ -169,9 +169,6 @@ class _TaskPageState extends State<TaskPage> {
                       ],
                     ),
 
-                    /// ===== FIX UTAMA DI SINI =====
-                    /// SEBELUMNYA: hanya Icon → tidak bisa diklik
-                    /// SEKARANG: PopupMenuButton → bisa sorting & filter
                     PopupMenuButton<String>(
                       icon: const Icon(Icons.grid_view, color: Colors.white),
 
