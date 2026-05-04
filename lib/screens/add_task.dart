@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
-// HALAMAN TAMBAH TASK (pakai Stateful karena ada input & state berubah)
 class AddTaskPage extends StatefulWidget {
-  const AddTaskPage({super.key});
+
+  // OPTIONAL → kalau ada berarti mode EDIT
+  final Map<String, dynamic>? existingTask;
+
+  const AddTaskPage({super.key, this.existingTask});
 
   @override
   State<AddTaskPage> createState() => _AddTaskPageState();
@@ -10,20 +13,35 @@ class AddTaskPage extends StatefulWidget {
 
 class _AddTaskPageState extends State<AddTaskPage> {
 
-  // CONTROLLER buat ambil isi dari TextField
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _detailController = TextEditingController();
 
-  // FUNCTION SIMPAN DATA
-  void _saveTask() {
-    if (_nameController.text.isEmpty) return; // validasi sederhana (ga boleh kosong)
+  /// AUTO ISI DATA SAAT EDIT
+  @override
+  void initState() {
+    super.initState();
 
-    // KIRIM DATA KE HALAMAN SEBELUMNYA
+    if (widget.existingTask != null) {
+      _nameController.text = widget.existingTask!["title"];
+      _dateController.text = widget.existingTask!["dueDate"];
+      _detailController.text = widget.existingTask!["detail"];
+    }
+  }
+
+  /// ===== SIMPAN / UPDATE =====
+  void _saveTask() {
+    if (_nameController.text.isEmpty) return;
+
     Navigator.pop(context, {
       "title": _nameController.text,
       "dueDate": _dateController.text.isEmpty ? "-" : _dateController.text,
       "detail": _detailController.text.isEmpty ? "-" : _detailController.text,
+
+      /// NOTE:
+      /// - kalau edit → ambil status lama
+      /// - kalau tambah baru → default false
+      "done": widget.existingTask?["done"] ?? false,
     });
   }
 
@@ -31,12 +49,9 @@ class _AddTaskPageState extends State<AddTaskPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        // BACKGROUND GRADIENT
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFF5B8DEF), Color(0xFF4A6FD6)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
           ),
         ),
 
@@ -52,7 +67,6 @@ class _AddTaskPageState extends State<AddTaskPage> {
                 child: Row(
                   children: [
 
-                    // BUTTON BACK
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: Container(
@@ -71,7 +85,6 @@ class _AddTaskPageState extends State<AddTaskPage> {
 
                     const Spacer(),
 
-                    // JUDUL HALAMAN
                     const Text(
                       "Add Task",
                       style: TextStyle(
@@ -82,14 +95,14 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     ),
 
                     const Spacer(),
-                    const SizedBox(width: 30), // biar balance kanan kiri
+                    const SizedBox(width: 30),
                   ],
                 ),
               ),
 
               const SizedBox(height: 30),
 
-              /// ===== FORM INPUT =====
+              /// ===== FORM =====
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.all(20),
@@ -103,7 +116,6 @@ class _AddTaskPageState extends State<AddTaskPage> {
                   child: Column(
                     children: [
 
-                      // INPUT NAMA TUGAS
                       _input(
                         controller: _nameController,
                         label: "Nama Tugas",
@@ -112,7 +124,6 @@ class _AddTaskPageState extends State<AddTaskPage> {
 
                       const SizedBox(height: 15),
 
-                      // INPUT DEADLINE
                       _input(
                         controller: _dateController,
                         label: "Deadline",
@@ -121,7 +132,6 @@ class _AddTaskPageState extends State<AddTaskPage> {
 
                       const SizedBox(height: 15),
 
-                      // INPUT DETAIL (bisa multi line)
                       _input(
                         controller: _detailController,
                         label: "Detail",
@@ -131,21 +141,23 @@ class _AddTaskPageState extends State<AddTaskPage> {
 
                       const Spacer(),
 
-                      // BUTTON SIMPAN
+                      /// BUTTON DINAMIS (ADD / EDIT)
                       SizedBox(
                         width: double.infinity,
                         height: 55,
                         child: ElevatedButton(
-                          onPressed: _saveTask, // panggil function simpan
+                          onPressed: _saveTask,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF5B8DEF),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(18),
                             ),
                           ),
-                          child: const Text(
-                            "Simpan",
-                            style: TextStyle(
+                          child: Text(
+                            widget.existingTask == null
+                                ? "Simpan"
+                                : "Update",
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                             ),
@@ -165,7 +177,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
     );
   }
 
-  // WIDGET REUSABLE INPUT (biar ga nulis TextField berulang)
+  /// ===== INPUT REUSABLE =====
   Widget _input({
     required TextEditingController controller,
     required String label,
@@ -181,8 +193,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
         controller: controller,
         maxLines: maxLines,
         decoration: InputDecoration(
-          prefixIcon: Icon(icon), // icon di kiri
-          labelText: label, // label input
+          prefixIcon: Icon(icon),
+          labelText: label,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 15),
         ),

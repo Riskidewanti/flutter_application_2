@@ -4,7 +4,7 @@ import 'add_task.dart';
 class TaskDetailPage extends StatefulWidget {
   const TaskDetailPage({super.key, required this.subject});
 
-  final Map<String, dynamic> subject; // data subject dari page sebelumnya
+  final Map<String, dynamic> subject;
 
   @override
   State<TaskDetailPage> createState() => _TaskDetailPageState();
@@ -15,23 +15,24 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
   @override
   Widget build(BuildContext context) {
 
-    List tasks = widget.subject["tasks"]; // ambil list task dari subject
+    List tasks = widget.subject["tasks"];
+
+    // HITUNG PROGRESS
+    int done = tasks.where((t) => t["done"] == true).length;
+    double progress = tasks.isEmpty ? 0 : done / tasks.length;
 
     return Scaffold(
 
-      // tombol tambah task
+      // TAMBAH TASK
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.white,
         child: const Icon(Icons.add, color: Colors.blue),
         onPressed: () async {
-
-          // buka halaman tambah task
           final newTask = await Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => AddTaskPage()),
           );
 
-          // kalau ada data baru → masuk ke list
           if (newTask != null) {
             setState(() {
               tasks.add(newTask);
@@ -41,11 +42,10 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
       ),
 
       body: Container(
+        // UI ASLI
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFF5B8DEF), Color(0xFF4A6FD6)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
           ),
         ),
 
@@ -55,11 +55,10 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
 
               const SizedBox(height: 15),
 
-              /// HEADER
+              // HEADER
               Row(
                 children: [
 
-                  // tombol back (kirim true biar page sebelumnya refresh)
                   IconButton(
                     onPressed: () => Navigator.pop(context, true),
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -67,7 +66,6 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
 
                   const Spacer(),
 
-                  // nama subject
                   Text(
                     widget.subject["name"],
                     style: const TextStyle(
@@ -83,7 +81,19 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
 
               const SizedBox(height: 20),
 
-              /// LIST TASK
+              // PROGRESS BAR 
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  backgroundColor: Colors.white30,
+                  color: Colors.white,
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // LIST TASK
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.all(20),
@@ -94,11 +104,9 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                     ),
                   ),
 
-                  // kalau belum ada task
                   child: tasks.isEmpty
                       ? const Center(child: Text("Belum ada tugas"))
 
-                      // kalau ada task → tampilkan list
                       : ListView.builder(
                           itemCount: tasks.length,
                           itemBuilder: (context, index) {
@@ -108,13 +116,68 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                             return Card(
                               child: ListTile(
 
-                                // judul task
-                                title: Text(task["title"]),
+                                // CHECKBOX
+                                leading: Checkbox(
+                                  value: task["done"],
+                                  onChanged: (value) {
+                                    setState(() {
+                                      task["done"] = value;
+                                    });
+                                  },
+                                ),
 
-                                // deadline
+                                // TITLE
+                                title: Text(
+                                  task["title"],
+                                  style: TextStyle(
+                                    decoration: task["done"]
+                                        ? TextDecoration.lineThrough
+                                        : null,
+                                  ),
+                                ),
+
                                 subtitle: Text("Deadline: ${task["dueDate"]}"),
 
-                                // klik → tampil detail
+                                // MENU EDIT + DELETE
+                                trailing: PopupMenuButton<String>(
+                                  onSelected: (value) async {
+
+                                    if (value == "edit") {
+                                      final updatedTask =
+                                          await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              AddTaskPage(existingTask: task),
+                                        ),
+                                      );
+
+                                      if (updatedTask != null) {
+                                        setState(() {
+                                          tasks[index] = updatedTask;
+                                        });
+                                      }
+                                    }
+
+                                    if (value == "delete") {
+                                      setState(() {
+                                        tasks.removeAt(index);
+                                      });
+                                    }
+                                  },
+                                  itemBuilder: (_) => const [
+                                    PopupMenuItem(
+                                      value: "edit",
+                                      child: Text("Edit"),
+                                    ),
+                                    PopupMenuItem(
+                                      value: "delete",
+                                      child: Text("Delete"),
+                                    ),
+                                  ],
+                                ),
+
+                                // DETAIL TASK
                                 onTap: () {
                                   showDialog(
                                     context: context,

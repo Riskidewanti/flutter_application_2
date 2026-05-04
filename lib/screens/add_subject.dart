@@ -13,7 +13,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
   // CONTROLLER buat ambil input nama subject
   final TextEditingController _nameController = TextEditingController();
 
-  /// 🔥 TEMPLATE SUBJECT (biar auto icon & warna sesuai nama)
+  /// TEMPLATE SUBJECT 
   final Map<String, Map<String, dynamic>> subjectTemplates = {
     "Matematika": {
       "icon": Icons.calculate,
@@ -47,7 +47,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
 
     if (name.isEmpty) return; // validasi sederhana
 
-    /// 🔍 CEK APAKAH ADA DI TEMPLATE (ga peduli huruf besar/kecil)
+    /// CEK APAKAH ADA DI TEMPLATE
     final template = subjectTemplates.entries.firstWhere(
       (e) => e.key.toLowerCase() == name.toLowerCase(),
       orElse: () => const MapEntry("", {}), // kalau ga ada → kosong
